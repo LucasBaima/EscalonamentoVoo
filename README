@@ -1,0 +1,86 @@
+# Escalonador de tarefas críticas de voo
+
+Simulador de escalonamento preemptivo de tarefas periódicas de tempo real.
+Compara dois escalonadores clássicos — rate-monotonic (`rate`) e
+earliest-deadline-first (`edf`) — sobre o mesmo conjunto de tarefas e registra
+a execução instante a instante.
+
+Diferença central entre os dois: no `rate` a prioridade é fixa e definida pelo
+período (menor período, maior prioridade); no `edf` a prioridade é dinâmica e
+definida pelo deadline absoluto mais próximo naquele instante. Os dois são
+preemptivos. Desempate em ambos: vence a tarefa que aparece primeiro no arquivo
+de entrada.
+
+## Ambiente
+
+- **SO:** _(Linux / Debian)
+- **Compilador:** gcc
+- **Build:** make
+
+## Compilação
+
+```
+make
+```
+
+Gera um único executável: `scheduler`.
+
+```
+make clean
+```
+
+Remove os artefatos de compilação e o executável.
+
+## Execução
+
+```
+./scheduler rate voo.txt
+./scheduler edf  voo.txt
+```
+
+Primeiro argumento: `rate` ou `edf`. Segundo argumento: arquivo de entrada.
+
+
+Em caso de erro (número errado de argumentos, algoritmo diferente de `rate`/`edf`,
+arquivo inexistente ou ilegível, arquivo malformado, ou tarefa violando
+`BURST ≤ DEADLINE ≤ PERÍODO`), o programa escreve mensagem em stderr, encerra com
+código de saída diferente de zero e **não** cria arquivo de saída.
+
+## Formato de entrada
+
+Primeira linha: tempo total de simulação. Demais linhas: uma tarefa por linha.
+
+```
+[TEMPO_TOTAL]
+[NOME] [PERÍODO] [DEADLINE] [BURST]
+```
+
+Todos os valores são inteiros positivos e vale sempre `BURST ≤ DEADLINE ≤ PERÍODO`.
+Todas as tarefas chegam pela primeira vez no instante 0.
+
+Exemplo (`voo.txt`):
+
+```
+100
+ATT 20 12 8
+NAV 50 30 15
+```
+
+## Formato de saída
+
+O arquivo `.out` contém quatro blocos:
+
+- `EXECUTION BY <ALGO>` — o que ocupou a CPU em cada trecho, incluindo `idle`.
+- `LOST DEADLINES` — instâncias que estouraram o deadline **dentro** do tempo de simulação.
+- `COMPLETE EXECUTION` — instâncias que terminaram dentro do prazo.
+- `KILLED` — instâncias que ainda estavam vivas quando a simulação terminou.
+
+## Estrutura do projeto
+
+> Estrutura planejada. Esta seção é finalizada conforme os arquivos forem escritos.
+
+- `Makefile` — compilação (`make`) e limpeza (`make clean`).
+- `*.c` / `*.h` — _descrever cada arquivo `.c` 
+- `voo.txt` — entrada de exemplo.
+- `tests/` — casos de teste e saídas esperadas.
+

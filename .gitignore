@@ -1,0 +1,32 @@
+# Executável final
+scheduler
+
+# Objetos e artefatos de compilação
+*.o
+*.obj
+*.d
+*.gch
+*.pch
+
+# Saídas geradas pelo programa (rate_<login>.out / edf_<login>.out)
+rate_*.out
+edf_*.out
+# Se saídas esperadas de teste forem versionadas, libere-as aqui:
+# !tests/**/*.out
+
+# Pacote de submissão
+*.tar
+
+# Depuração / core dumps
+core
+core.*
+vgcore.*
+*.dSYM/
+
+
+# Lixo do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Config do editor (remova esta linha se quiser versionar .vscode/)
+.vscode/
