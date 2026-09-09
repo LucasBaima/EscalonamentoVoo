@@ -1,86 +1,53 @@
-# Escalonador de tarefas críticas de voo
+# Escalonador de tarefas criticas de voo
 
-Simulador de escalonamento preemptivo de tarefas periódicas de tempo real.
-Compara dois escalonadores clássicos — rate-monotonic (`rate`) e
-earliest-deadline-first (`edf`) — sobre o mesmo conjunto de tarefas e registra
-a execução instante a instante.
-
-Diferença central entre os dois: no `rate` a prioridade é fixa e definida pelo
-período (menor período, maior prioridade); no `edf` a prioridade é dinâmica e
-definida pelo deadline absoluto mais próximo naquele instante. Os dois são
-preemptivos. Desempate em ambos: vence a tarefa que aparece primeiro no arquivo
-de entrada.
+Simulador de escalonamento preemptivo de tarefas periodicas de tempo real.
+Compara rate-monotonic (rate) e earliest-deadline-first (edf). A diferenca
+entre os dois esta no criterio de prioridade: rate usa o periodo (fixo), edf
+usa o deadline absoluto (recalculado a cada instante). Empate: vence a tarefa
+que aparece primeiro no arquivo.
 
 ## Ambiente
+- SO: Debian 13 (Linux 6.10)
+- Compilador: gcc
+- Build: make
 
-- **SO:** _(Linux / Debian)
-- **Compilador:** gcc
-- **Build:** make
+## Compilar e limpar
+    make          # gera o executavel 'scheduler'
+    make clean    # remove objetos e executavel
 
-## Compilação
+## Executar
+    ./scheduler rate voo.txt
+    ./scheduler edf  voo.txt
 
-```
-make
-```
-
-Gera um único executável: `scheduler`.
-
-```
-make clean
-```
-
-Remove os artefatos de compilação e o executável.
-
-## Execução
-
-```
-./scheduler rate voo.txt
-./scheduler edf  voo.txt
-```
-
-Primeiro argumento: `rate` ou `edf`. Segundo argumento: arquivo de entrada.
-
-
-Em caso de erro (número errado de argumentos, algoritmo diferente de `rate`/`edf`,
-arquivo inexistente ou ilegível, arquivo malformado, ou tarefa violando
-`BURST ≤ DEADLINE ≤ PERÍODO`), o programa escreve mensagem em stderr, encerra com
-código de saída diferente de zero e **não** cria arquivo de saída.
+Saida gravada em rate_jlogb.out / edf_jlogb.out. Nada e impresso em stdout na
+execucao normal. Em caso de erro: mensagem em stderr, exit != 0, nenhum .out.
 
 ## Formato de entrada
+Primeira linha: tempo total. Demais linhas: NOME PERIODO DEADLINE BURST.
+Inteiros positivos, com BURST <= DEADLINE <= PERIODO. Exemplo em voo.txt.
 
-Primeira linha: tempo total de simulação. Demais linhas: uma tarefa por linha.
+## Arquivos-fonte
+- task.h        - struct Task e enum SchedAlgo (modelo de dominio)
+- parser.c/.h   - leitura e validacao do arquivo de entrada
+- scheduler.c/.h- motor de simulacao (laco de tempo, rate e edf)
+- output.c/.h   - escrita do .out no formato do enunciado
+- main.c        - orquestra: argumentos -> parser -> scheduler -> output
 
-```
-[TEMPO_TOTAL]
-[NOME] [PERÍODO] [DEADLINE] [BURST]
-```
+## Testes
+Casos de erro (um arquivo por defeito, todos devem dar mensagem + exit 1,
+sem criar .out):
+- t_falta.txt    - campo faltando
+- t_naonum.txt   - valor nao numerico
+- t_zero.txt     - valor nao positivo
+- t_dmaior.txt   - deadline > periodo (D > P)
+- t_cmaiord.txt  - burst > deadline (C > D)
 
-Todos os valores são inteiros positivos e vale sempre `BURST ≤ DEADLINE ≤ PERÍODO`.
-Todas as tarefas chegam pela primeira vez no instante 0.
+Execucao valida: voo.txt (exemplo do enunciado; rate reproduz a saida
+esperada, edf conclui o NAV que o rate perde).
 
-Exemplo (`voo.txt`):
+gerar_evidencias.sh roda todos os casos acima (validos e de erro) e grava o
+resultado em evidencias.log — comando, saida e exit code de cada um.
 
-```
-100
-ATT 20 12 8
-NAV 50 30 15
-```
-
-## Formato de saída
-
-O arquivo `.out` contém quatro blocos:
-
-- `EXECUTION BY <ALGO>` — o que ocupou a CPU em cada trecho, incluindo `idle`.
-- `LOST DEADLINES` — instâncias que estouraram o deadline **dentro** do tempo de simulação.
-- `COMPLETE EXECUTION` — instâncias que terminaram dentro do prazo.
-- `KILLED` — instâncias que ainda estavam vivas quando a simulação terminou.
-
-## Estrutura do projeto
-
-> Estrutura planejada. Esta seção é finalizada conforme os arquivos forem escritos.
-
-- `Makefile` — compilação (`make`) e limpeza (`make clean`).
-- `*.c` / `*.h` — _descrever cada arquivo `.c` 
-- `voo.txt` — entrada de exemplo.
-- `tests/` — casos de teste e saídas esperadas.
+    chmod +x gerar_evidencias.sh
+    ./gerar_evidencias.sh
 
