@@ -1,0 +1,137 @@
+======================================================
+ EVIDENCIAS DE TESTE - Escalonador rate/edf
+ Gerado em: 2026-09-09 19:44:00
+ SO: Linux 6.12.107+deb13-amd64 x86_64
+======================================================
+
+------------------------------------------------------
+TESTE: rate no voo.txt (execucao valida)
+CMD:   ./scheduler rate voo.txt
+------ saida (stdout + stderr) ------
+------ exit code: 0 ------
+
+------------------------------------------------------
+TESTE: edf no voo.txt (execucao valida)
+CMD:   ./scheduler edf voo.txt
+------ saida (stdout + stderr) ------
+------ exit code: 0 ------
+
+------ conteudo de rate_jlogb.out ------
+EXECUTION BY RATE
+[ATT] for 8 units - F
+[NAV] for 12 units - H
+[ATT] for 8 units - F
+[NAV] for 2 units - L
+idle for 10 units
+[ATT] for 8 units - F
+idle for 2 units
+[NAV] for 10 units - H
+[ATT] for 8 units - F
+[NAV] for 5 units - F
+idle for 7 units
+[ATT] for 8 units - F
+idle for 12 units
+LOST DEADLINES
+[ATT] 0
+[NAV] 1
+COMPLETE EXECUTION
+[ATT] 5
+[NAV] 1
+KILLED
+[ATT] 0
+[NAV] 0
+
+------ conteudo de edf_jlogb.out ------
+EXECUTION BY EDF
+[ATT] for 8 units - F
+[NAV] for 15 units - F
+[ATT] for 8 units - F
+idle for 9 units
+[ATT] for 8 units - F
+idle for 2 units
+[NAV] for 10 units - H
+[ATT] for 8 units - F
+[NAV] for 5 units - F
+idle for 7 units
+[ATT] for 8 units - F
+idle for 12 units
+LOST DEADLINES
+[ATT] 0
+[NAV] 0
+COMPLETE EXECUTION
+[ATT] 5
+[NAV] 2
+KILLED
+[ATT] 0
+[NAV] 0
+
+------------------------------------------------------
+TESTE: numero de argumentos: nenhum
+CMD:   ./scheduler
+------ saida (stdout + stderr) ------
+erro: uso: ./scheduler <rate|edf> <arquivo>
+------ exit code: 1 ------
+
+------------------------------------------------------
+TESTE: numero de argumentos: faltando arq
+CMD:   ./scheduler rate
+------ saida (stdout + stderr) ------
+erro: uso: ./scheduler <rate|edf> <arquivo>
+------ exit code: 1 ------
+
+------------------------------------------------------
+TESTE: algoritmo invalido
+CMD:   ./scheduler xpto voo.txt
+------ saida (stdout + stderr) ------
+erro: algoritmo invalido: use 'rate' ou 'edf'
+------ exit code: 1 ------
+
+------------------------------------------------------
+TESTE: arquivo inexistente
+CMD:   ./scheduler rate naoexiste.txt
+------ saida (stdout + stderr) ------
+erro: nao foi possivel abrir 'naoexiste.txt': No such file or directory
+------ exit code: 1 ------
+
+------------------------------------------------------
+TESTE: campo faltando
+CMD:   ./scheduler rate t_falta.txt
+------ saida (stdout + stderr) ------
+erro: linha 2: campo faltando
+------ exit code: 1 ------
+
+------------------------------------------------------
+TESTE: valor nao numerico
+CMD:   ./scheduler rate t_naonum.txt
+------ saida (stdout + stderr) ------
+erro: linha 2: valor nao numerico ou nao positivo
+------ exit code: 1 ------
+
+------------------------------------------------------
+TESTE: valor nao positivo (zero)
+CMD:   ./scheduler rate t_zero.txt
+------ saida (stdout + stderr) ------
+erro: linha 2: valor nao numerico ou nao positivo
+------ exit code: 1 ------
+
+------------------------------------------------------
+TESTE: deadline > periodo (D > P)
+CMD:   ./scheduler rate t_dmaior.txt
+------ saida (stdout + stderr) ------
+erro: linha 2: deadline > periodo (D > P)
+------ exit code: 1 ------
+
+------------------------------------------------------
+TESTE: burst > deadline (C > D)
+CMD:   ./scheduler rate t_cmaiord.txt
+------ saida (stdout + stderr) ------
+erro: linha 2: burst > deadline (C > D)
+------ exit code: 1 ------
+
+------------------------------------------------------
+VERIFICACAO: nenhum .out indevido apos os casos de erro
+CMD:   ls *.out
+------ saida ------
+edf_jlogb.out
+rate_jlogb.out
+------------------------------------------------------
